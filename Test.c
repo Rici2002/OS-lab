@@ -52,10 +52,80 @@ void access_rights(mode_t mode) {
     printf("Exec - %s\n", ((mode & 0b1)!=0) ? "Yes" : "No");
 }
 
+void reg_files(char *name, char commands[NUM_COMANDS]) {
+    struct stat st;
+    stat(name, &st);
+
+    for(int i=1;i<strlen(commands);i++) {
+        switch(commands[i]) {
+            case 'n': 
+                printf("Name of the file: %s\n", name);
+                break;
+            case 'd': 
+                printf("Size: %ld\n", st.st_size);
+                break;
+            case 'h': 
+                printf("Hard link count: %ld\n", st.st_nlink);
+                break;
+            case 'm':
+                printf("Time of last modification: %d\n", ctime(&st.st_mtime));
+                break;
+            case 'a': 
+                access_rights(st.st_mode);
+                break;
+            case 'l': 
+                printf("Please enter the name of the link: ");
+                char *link_name;
+                scanf("%s", link_name);
+                symlink(name, link_name);
+                break;
+            default:
+                printf("Unknown command\n");
+
+        }
+    }
+}
+
+void sym_links(char *name, char commands[NUM_COMANDS]) {
+    struct stat link, targeted_file;
+    lstat(name, &link);
+    for(int i=1;i<strlen(commands);i++) {
+        switch(commands[i]) {
+            case 'n':
+                printf("Name of the symbolic link: %s\n", name);
+                break;
+            case 'l':
+                printf("Delete the symbolic link\n");
+                unlink(name);
+                break;
+            case 'd':
+                printf("Size of the symbolic link: %ld\n", link.st_size);
+                break;
+            case 't':
+                stat(name, &targeted_file);
+                printf("Size of the targeted file: %ld\n", targeted_file.st_size);
+                break;
+            case 'a':
+                access_rights(link.st_mode);
+                break;
+            default:
+                printf("Unknown command\n");
+        }
+        if(commands[i]=='l') {
+            printf("The rest of the commands will not be performed\n");
+            break;
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
-    struct stat file_stat;
-    char options[256];
-    int i;
+    struct stat st;
+    char commands[NUM_COMANDS];
+    
+    if(argc==1){
+        printf("Not enough arguments.\n");
+        exit(1);
+    }
 
     return 0;
 }
