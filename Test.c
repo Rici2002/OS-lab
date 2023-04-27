@@ -52,9 +52,16 @@ void access_rights(mode_t mode) {
     printf("Exec - %s\n", ((mode & 0b1)!=0) ? "Yes" : "No");
 }
 
-void reg_files(char *name, char commands[NUM_COMANDS]) {
+void reg_files(char name[], char commands[NUM_COMANDS]) {
     struct stat st;
     stat(name, &st);
+
+    if(stat(name, &st)==-1){
+        printf("Error");
+        exit(1);
+    }
+
+
 
     for(int i=1;i<strlen(commands);i++) {
         switch(commands[i]) {
@@ -115,6 +122,58 @@ void sym_links(char *name, char commands[NUM_COMANDS]) {
             printf("The rest of the commands will not be performed\n");
             break;
         }
+    }
+}
+
+void processes(char *name, char [NUM_COMANDS]){
+    pid_t pid, w;
+    int wstatus1, wstatus2;
+    if(reg_files()){
+        pid=fork();
+        int wstatus1;
+
+        if(pid<0){
+        printf("Error");
+        exit(1);
+        }
+
+        if(pid==0){
+        printf(show_regular_file);
+        exit(0);
+        }
+        else{
+            if(pid>0){
+                printf("Parent process\n");
+            }
+        }
+   }
+
+   if(directory()){
+        pid=fork();
+        int wstatus2;
+
+        if(pid<0){
+            printf("Error");
+            exit(1);
+        }
+        if(pid==0){
+            printf(show_directory);
+            exit(0);
+        }
+        else{
+            if(pid>0){
+                printf("Child process");
+            }
+        }
+   }
+    w=wait(&wstatus1);
+    if(WIFEXITED(wstatus1)){
+        printf("The process with pid %d, exited, status=%d\n", w, WEXITSTATUS(wstatus1));
+    }
+
+    w=wait(&wstatus2);
+    if(WIFEXITED(wstatus2)){
+        printf("The process with pid %d, exited, status=%d\n", w, WEXITSTATUS(wstatus2));
     }
 }
 
